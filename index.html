@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
 <title>Коэффициенты</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -15,68 +14,80 @@ html, body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-/* Заблюренный фон */
+/* Фон */
 .background {
     position: fixed;
     inset: 0;
     background: url("bg.jpg") center / cover no-repeat;
-    filter: blur(22px) brightness(0.55);
-    transform: scale(1.1);
+    filter: blur(10px) brightness(0.7);
     z-index: -1;
 }
 
-/* Основной контейнер */
+/* Контейнер */
 .app {
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 32px;
-    color: white;
+    gap: 28px;
+}
+
+/* Карточка */
+.card {
+    min-width: 240px;
+    padding: 32px 48px;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
     text-align: center;
 }
 
-/* Число */
+/* Значение */
 .value {
-    font-size: 76px;
+    font-size: 72px;
     font-weight: 800;
+    color: #fff;
     letter-spacing: 2px;
-    text-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    animation: show 0.6s ease;
+    animation: slideFade 0.5s ease;
 }
 
 /* Кнопка */
 button {
-    padding: 16px 44px;
-    font-size: 18px;
+    padding: 14px 38px;
+    font-size: 17px;
     font-weight: 600;
-    border-radius: 32px;
+    border-radius: 26px;
     border: none;
     cursor: pointer;
-    color: white;
-    background: linear-gradient(135deg, #7f5cff, #21d4fd);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.45);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    color: #111;
+    background: #ffffff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 button:active {
-    transform: scale(0.94);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    transform: scale(0.95);
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: default;
 }
 
 /* Анимация */
-@keyframes show {
+@keyframes slideFade {
     from {
         opacity: 0;
-        transform: scale(0.75);
+        transform: translateY(20px) scale(0.9);
     }
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: translateY(0) scale(1);
     }
 }
 </style>
@@ -87,7 +98,9 @@ button:active {
 <div class="background"></div>
 
 <div class="app">
-    <div class="value" id="value">—</div>
+    <div class="card">
+        <div class="value" id="value">—</div>
+    </div>
     <button id="nextBtn">Далее</button>
 </div>
 
@@ -95,7 +108,7 @@ button:active {
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// Читаем коэффициенты из URL
+// Получаем данные
 const params = new URLSearchParams(window.location.search);
 const rawData = params.get("data");
 
@@ -108,34 +121,36 @@ if (rawData) {
         .filter(v => v.length > 0);
 }
 
-// DOM
 const valueEl = document.getElementById("value");
 const nextBtn = document.getElementById("nextBtn");
 
 // Если данных нет
 if (!values.length) {
     valueEl.textContent = "Нет данных";
+    nextBtn.disabled = true;
 }
 
 // Кнопка "Далее"
 nextBtn.addEventListener("click", () => {
-    if (!values.length) return;
+    if (index >= values.length) {
+        nextBtn.disabled = true;
+        return;
+    }
 
     valueEl.textContent = values[index];
 
-    // Перезапуск анимации
+    // перезапуск анимации
     valueEl.style.animation = "none";
     valueEl.offsetHeight;
     valueEl.style.animation = "";
 
-    index = (index + 1) % values.length;
-});
+    index++;
 
-// Показать первое значение автоматически
-if (values.length) {
-    valueEl.textContent = values[0];
-    index = 1;
-}
+    if (index >= values.length) {
+        nextBtn.textContent = "Конец";
+        nextBtn.disabled = true;
+    }
+});
 </script>
 
 </body>
