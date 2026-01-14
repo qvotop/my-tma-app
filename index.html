@@ -1,184 +1,142 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Multiplier App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root {
-            --accent-color: #00f2ff; /* Цвет свечения цифр */
-            --bg-overlay: rgba(0, 0, 0, 0.4);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+<title>Коэффициенты</title>
 
-        /* Фоновое изображение с блюром */
-        .bg-image {
-            position: fixed;
-            top: -10%;
-            left: -10%;
-            width: 120%;
-            height: 120%;
-            background: url('bg.jpg') no-repeat center center;
-            background-size: cover;
-            filter: blur(20px) brightness(0.7);
-            z-index: -1;
-        }
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-        /* Затемняющий слой для читаемости */
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, transparent 20%, rgba(0,0,0,0.8) 100%);
-            z-index: -1;
-        }
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
 
-        /* Контейнер для цифр */
-        .display-container {
-            text-align: center;
-            min-height: 150px;
-        }
+/* Заблюренный фон */
+.background {
+    position: fixed;
+    inset: 0;
+    background: url("bg.jpg") center / cover no-repeat;
+    filter: blur(22px) brightness(0.55);
+    transform: scale(1.1);
+    z-index: -1;
+}
 
-        #value {
-            font-size: clamp(60px, 15vw, 100px);
-            font-weight: 900;
-            margin: 0;
-            text-shadow: 0 0 30px var(--accent-color);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            opacity: 0;
-            transform: scale(0.5);
-        }
+/* Основной контейнер */
+.app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    color: white;
+    text-align: center;
+}
 
-        #value.active {
-            opacity: 1;
-            transform: scale(1);
-        }
+/* Число */
+.value {
+    font-size: 76px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    animation: show 0.6s ease;
+}
 
-        /* Кнопка "Далее" */
-        .btn-next {
-            margin-top: 50px;
-            padding: 18px 80px;
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            backdrop-filter: blur(15px);
-            cursor: pointer;
-            outline: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            -webkit-tap-highlight-color: transparent;
-        }
+/* Кнопка */
+button {
+    padding: 16px 44px;
+    font-size: 18px;
+    font-weight: 600;
+    border-radius: 32px;
+    border: none;
+    cursor: pointer;
+    color: white;
+    background: linear-gradient(135deg, #7f5cff, #21d4fd);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.45);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
 
-        .btn-next:active {
-            transform: scale(0.92);
-            background: rgba(255, 255, 255, 0.2);
-            border-color: var(--accent-color);
-        }
+button:active {
+    transform: scale(0.94);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
 
-        /* Счётчик внизу */
-        .counter {
-            position: absolute;
-            bottom: 40px;
-            font-size: 14px;
-            letter-spacing: 2px;
-            opacity: 0.6;
-            text-transform: uppercase;
-        }
-    </style>
+/* Анимация */
+@keyframes show {
+    from {
+        opacity: 0;
+        transform: scale(0.75);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="bg-image"></div>
-    <div class="overlay"></div>
+<div class="background"></div>
 
-    <div class="display-container">
-        <h1 id="value">---</h1>
-    </div>
+<div class="app">
+    <div class="value" id="value">—</div>
+    <button id="nextBtn">Далее</button>
+</div>
 
-    <button class="btn-next" onclick="handleNext()">ДАЛЕЕ</button>
+<script>
+const tg = window.Telegram.WebApp;
+tg.expand();
 
-    <div class="counter" id="counter">0 / 0</div>
+// Читаем коэффициенты из URL
+const params = new URLSearchParams(window.location.search);
+const rawData = params.get("data");
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+let values = [];
+let index = 0;
 
-        let values = [];
-        let currentIndex = 0;
+if (rawData) {
+    values = decodeURIComponent(rawData)
+        .split(" ")
+        .filter(v => v.length > 0);
+}
 
-        // Инициализация данных из URL
-        function init() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const dataString = urlParams.get('data');
+// DOM
+const valueEl = document.getElementById("value");
+const nextBtn = document.getElementById("nextBtn");
 
-            if (dataString) {
-                // Твой бот шлет данные через запятую
-                values = dataString.split(',').filter(item => item.trim() !== "");
-            }
+// Если данных нет
+if (!values.length) {
+    valueEl.textContent = "Нет данных";
+}
 
-            if (values.length === 0) {
-                document.getElementById('value').innerText = "Пусто";
-                document.getElementById('value').classList.add('active');
-            } else {
-                updateDisplay();
-            }
-        }
+// Кнопка "Далее"
+nextBtn.addEventListener("click", () => {
+    if (!values.length) return;
 
-        function updateDisplay() {
-            const valElement = document.getElementById('value');
-            const counterElement = document.getElementById('counter');
+    valueEl.textContent = values[index];
 
-            // Эффект смены числа
-            valElement.classList.remove('active');
+    // Перезапуск анимации
+    valueEl.style.animation = "none";
+    valueEl.offsetHeight;
+    valueEl.style.animation = "";
 
-            setTimeout(() => {
-                let currentVal = values[currentIndex];
-                // Добавляем 'x', если пользователь просто прислал число
-                valElement.innerText = currentVal.toLowerCase().includes('x') ? currentVal : currentVal + 'x';
-                valElement.classList.add('active');
-                
-                counterElement.innerText = `${currentIndex + 1} / ${values.length}`;
-            }, 150);
-        }
+    index = (index + 1) % values.length;
+});
 
-        function handleNext() {
-            if (values.length <= 1) return;
+// Показать первое значение автоматически
+if (values.length) {
+    valueEl.textContent = values[0];
+    index = 1;
+}
+</script>
 
-            currentIndex++;
-            if (currentIndex >= values.length) {
-                currentIndex = 0; // Возврат в начало
-            }
-
-            // Виброотклик Telegram
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-
-            updateDisplay();
-        }
-
-        init();
-    </script>
 </body>
 </html>
