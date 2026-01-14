@@ -10,31 +10,27 @@
             height: 100vh; width: 100vw;
             overflow: hidden;
             font-family: 'Arial', sans-serif;
-            /* Запасной фон, если картинка не загрузится */
-            background: #111 linear-gradient(to bottom, #111, #222);
+            background-color: #000;
         }
 
         .background {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            /* Попробуем указать путь через ./ для локальной относительности */
-            background-image: url('./bg.jpg'); 
+            /* ИСПОЛЬЗУЕМ АБСОЛЮТНЫЙ ПУТЬ ДЛЯ ОБХОДА ОШИБОК */
+            background-image: url('https://qvotop.github.io/my-tma-app/bg.jpg'); 
             background-size: cover;
             background-position: center;
-            filter: blur(5px) brightness(0.4); 
+            filter: blur(5px) brightness(0.5); 
             z-index: -1;
             transform: scale(1.1);
-            /* Плавное появление фона, когда он загрузится */
-            transition: opacity 0.5s ease-in;
         }
 
         .container {
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             height: 100vh; width: 100%;
-            text-align: center;
-            color: white;
+            text-align: center; color: white;
             z-index: 1;
         }
 
@@ -44,6 +40,7 @@
             margin-bottom: 50px;
             text-shadow: 0 10px 40px rgba(0,0,0,0.9);
             transition: all 0.15s ease-in-out;
+            user-select: none;
         }
 
         .next-btn {
@@ -60,19 +57,20 @@
             -webkit-backdrop-filter: blur(15px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             transition: all 0.2s ease;
+            outline: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         .next-btn:active {
             transform: scale(0.9);
-            background: rgba(255, 255, 255, 0.8);
-            color: black;
+            background: #fff;
+            color: #000;
         }
     </style>
 </head>
 <body>
 
-    <div class="background" id="bgLayer"></div>
+    <div class="background"></div>
 
     <div class="container">
         <div id="coeff-display">---</div>
@@ -82,12 +80,6 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-
-        // Если фон не загрузился за 2 секунды, выведем ошибку в консоль (для отладки)
-        const bg = document.getElementById('bgLayer');
-        const img = new Image();
-        img.src = "./bg.jpg";
-        img.onerror = () => { console.error("Картинка bg.jpg не найдена по этому пути"); };
 
         const urlParams = new URLSearchParams(window.location.search);
         const rawData = urlParams.get('data') || "";
