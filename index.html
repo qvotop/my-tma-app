@@ -3,103 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Коэффициенты</title>
+<title>Premium Multiplier</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-/* Фон */
-.background {
-    position: fixed;
-    inset: -10%; /* чуть больше, чтобы не было белых краев при блюре */
-    width: 120%;
-    height: 120%;
-    background: url("bg.jpg") center / cover no-repeat;
-    filter: blur(15px) brightness(0.6);
-    z-index: -1;
-}
-
-/* Контейнер */
-.app {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
-}
-
-/* Карточка */
-.card {
-    min-width: 260px;
-    padding: 40px;
-    border-radius: 35px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-    text-align: center;
-}
-
-/* Значение */
-.value {
-    font-size: 80px;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 0 20px rgba(255,255,255,0.3);
-    margin: 0;
-}
-
-/* Анимация при смене */
-.animate {
-    animation: slideFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-/* Кнопка */
-button {
-    padding: 18px 60px;
-    font-size: 18px;
-    font-weight: 700;
-    border-radius: 50px;
-    border: none;
-    cursor: pointer;
-    color: #000;
-    background: #ffffff;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-button:active {
-    transform: scale(0.92);
-    background: #f0f0f0;
-}
-
-button:disabled {
-    opacity: 0.3;
-    filter: grayscale(1);
-}
-
-@keyframes slideFade {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.8);
+    :root {
+        --accent-color: #ffffff;
+        --glass-bg: rgba(255, 255, 255, 0.07);
+        --glass-border: rgba(255, 255, 255, 0.18);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: 'SF Pro Display', -apple-system, system-ui, sans-serif;
+        background-color: #000;
     }
-}
+
+    /* Фон с умеренным блюром */
+    .background {
+        position: fixed;
+        inset: 0;
+        background: url("bg.jpg") center / cover no-repeat;
+        filter: blur(6px) brightness(0.5); /* Блюр уменьшен */
+        transform: scale(1.05);
+        z-index: -1;
+    }
+
+    .app {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+    }
+
+    /* Карточка с эффектом стекла */
+    .card {
+        position: relative;
+        min-width: 280px;
+        padding: 50px 30px;
+        border-radius: 40px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        text-align: center;
+        overflow: hidden;
+    }
+
+    /* Декоративное свечение внутри карточки */
+    .card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    /* Стилизация значения */
+    .value {
+        font-size: 90px;
+        font-weight: 900;
+        color: #fff;
+        margin: 0;
+        letter-spacing: -2px;
+        text-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Кнопка */
+    .btn-next {
+        padding: 20px 70px;
+        font-size: 18px;
+        font-weight: 700;
+        border-radius: 25px;
+        border: none;
+        cursor: pointer;
+        color: #000;
+        background: #fff;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .btn-next:active {
+        transform: scale(0.9) translateY(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Анимация появления */
+    .pop-in {
+        animation: popIn 0.5s cubic-bezier(0.26, 1.36, 0.45, 0.94);
+    }
+
+    @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.5) translateY(30px); filter: blur(10px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+    }
+
+    /* Счетчик */
+    .counter {
+        color: rgba(255,255,255,0.4);
+        font-size: 14px;
+        font-weight: 500;
+        letter-spacing: 1px;
+    }
 </style>
 </head>
 
@@ -111,73 +129,67 @@ button:disabled {
     <div class="card">
         <div class="value" id="value">...</div>
     </div>
-    <button id="nextBtn">Далее</button>
+    
+    <button class="btn-next" id="nextBtn">Далее</button>
+    
+    <div class="counter" id="counter">0 / 0</div>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand();
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-const valueEl = document.getElementById("value");
-const nextBtn = document.getElementById("nextBtn");
+    const valueEl = document.getElementById("value");
+    const nextBtn = document.getElementById("nextBtn");
+    const counterEl = document.getElementById("counter");
 
-// Получаем данные
-const params = new URLSearchParams(window.location.search);
-const rawData = params.get("data");
+    // Парсим данные из URL
+    const params = new URLSearchParams(window.location.search);
+    const rawData = params.get("data");
 
-let values = [];
-let currentIndex = 0;
+    let values = [];
+    let currentIndex = 0;
 
-if (rawData) {
-    // ВАЖНО: твой бот присылает данные через запятую!
-    values = decodeURIComponent(rawData)
-        .split(",") 
-        .filter(v => v.trim().length > 0);
-}
+    if (rawData) {
+        // Разделяем по запятой (как настроено в твоем боте)
+        values = decodeURIComponent(rawData).split(",").filter(v => v.trim() !== "");
+    }
 
-// Функция обновления экрана
-function render() {
-    if (currentIndex < values.length) {
-        let val = values[currentIndex];
-        
-        // Автоматически добавляем 'x', если его нет
-        valueEl.textContent = val.toLowerCase().includes('x') ? val : val + 'x';
-        
-        // Перезапуск анимации
-        valueEl.classList.remove("animate");
-        void valueEl.offsetWidth; // Магия для сброса анимации
-        valueEl.classList.add("animate");
-
-        // Если это последний элемент
-        if (currentIndex === values.length - 1) {
-            nextBtn.textContent = "Конец";
+    function updateDisplay() {
+        if (values.length === 0) {
+            valueEl.textContent = "Пусто";
+            return;
         }
-    } else {
-        nextBtn.disabled = true;
+
+        let currentVal = values[currentIndex];
+        // Добавляем 'x', если его нет в строке
+        valueEl.textContent = currentVal.toLowerCase().includes('x') ? currentVal : currentVal + 'x';
+        
+        // Обновляем счетчик
+        counterEl.textContent = `${currentIndex + 1} / ${values.length}`;
+
+        // Сброс и запуск анимации
+        valueEl.classList.remove("pop-in");
+        void valueEl.offsetWidth; 
+        valueEl.classList.add("pop-in");
     }
-}
 
-// Инициализация при запуске
-if (values.length > 0) {
-    render();
-} else {
-    valueEl.textContent = "Пусто";
-    nextBtn.disabled = true;
-}
+    // Первоначальный запуск
+    updateDisplay();
 
-// Кнопка "Далее"
-nextBtn.addEventListener("click", () => {
-    // Вибрация (для мобилок)
-    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    nextBtn.addEventListener("click", () => {
+        // Вибрация
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
-    currentIndex++;
-    if (currentIndex < values.length) {
-        render();
-    } else {
-        nextBtn.disabled = true;
-        nextBtn.textContent = "Завершено";
-    }
-});
+        currentIndex++;
+        
+        // Если дошли до конца — начинаем заново
+        if (currentIndex >= values.length) {
+            currentIndex = 0;
+        }
+
+        updateDisplay();
+    });
 </script>
 
 </body>
