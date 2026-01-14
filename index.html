@@ -20,9 +20,11 @@ html, body {
 /* Фон */
 .background {
     position: fixed;
-    inset: 0;
+    inset: -10%; /* чуть больше, чтобы не было белых краев при блюре */
+    width: 120%;
+    height: 120%;
     background: url("bg.jpg") center / cover no-repeat;
-    filter: blur(10px) brightness(0.7);
+    filter: blur(15px) brightness(0.6);
     z-index: -1;
 }
 
@@ -33,57 +35,65 @@ html, body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 28px;
+    gap: 30px;
 }
 
 /* Карточка */
 .card {
-    min-width: 240px;
-    padding: 32px 48px;
-    border-radius: 28px;
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    min-width: 260px;
+    padding: 40px;
+    border-radius: 35px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.5);
     text-align: center;
 }
 
 /* Значение */
 .value {
-    font-size: 72px;
-    font-weight: 800;
+    font-size: 80px;
+    font-weight: 900;
     color: #fff;
-    letter-spacing: 2px;
-    animation: slideFade 0.5s ease;
+    text-shadow: 0 0 20px rgba(255,255,255,0.3);
+    margin: 0;
+}
+
+/* Анимация при смене */
+.animate {
+    animation: slideFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* Кнопка */
 button {
-    padding: 14px 38px;
-    font-size: 17px;
-    font-weight: 600;
-    border-radius: 26px;
+    padding: 18px 60px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 50px;
     border: none;
     cursor: pointer;
-    color: #111;
+    color: #000;
     background: #ffffff;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 button:active {
-    transform: scale(0.95);
+    transform: scale(0.92);
+    background: #f0f0f0;
 }
 
 button:disabled {
-    opacity: 0.4;
-    cursor: default;
+    opacity: 0.3;
+    filter: grayscale(1);
 }
 
-/* Анимация */
 @keyframes slideFade {
     from {
         opacity: 0;
-        transform: translateY(20px) scale(0.9);
+        transform: translateY(20px) scale(0.8);
     }
     to {
         opacity: 1;
@@ -99,7 +109,7 @@ button:disabled {
 
 <div class="app">
     <div class="card">
-        <div class="value" id="value">—</div>
+        <div class="value" id="value">...</div>
     </div>
     <button id="nextBtn">Далее</button>
 </div>
@@ -108,47 +118,64 @@ button:disabled {
 const tg = window.Telegram.WebApp;
 tg.expand();
 
+const valueEl = document.getElementById("value");
+const nextBtn = document.getElementById("nextBtn");
+
 // Получаем данные
 const params = new URLSearchParams(window.location.search);
 const rawData = params.get("data");
 
 let values = [];
-let index = 0;
+let currentIndex = 0;
 
 if (rawData) {
+    // ВАЖНО: твой бот присылает данные через запятую!
     values = decodeURIComponent(rawData)
-        .split(" ")
-        .filter(v => v.length > 0);
+        .split(",") 
+        .filter(v => v.trim().length > 0);
 }
 
-const valueEl = document.getElementById("value");
-const nextBtn = document.getElementById("nextBtn");
+// Функция обновления экрана
+function render() {
+    if (currentIndex < values.length) {
+        let val = values[currentIndex];
+        
+        // Автоматически добавляем 'x', если его нет
+        valueEl.textContent = val.toLowerCase().includes('x') ? val : val + 'x';
+        
+        // Перезапуск анимации
+        valueEl.classList.remove("animate");
+        void valueEl.offsetWidth; // Магия для сброса анимации
+        valueEl.classList.add("animate");
 
-// Если данных нет
-if (!values.length) {
-    valueEl.textContent = "Нет данных";
+        // Если это последний элемент
+        if (currentIndex === values.length - 1) {
+            nextBtn.textContent = "Конец";
+        }
+    } else {
+        nextBtn.disabled = true;
+    }
+}
+
+// Инициализация при запуске
+if (values.length > 0) {
+    render();
+} else {
+    valueEl.textContent = "Пусто";
     nextBtn.disabled = true;
 }
 
 // Кнопка "Далее"
 nextBtn.addEventListener("click", () => {
-    if (index >= values.length) {
+    // Вибрация (для мобилок)
+    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+    currentIndex++;
+    if (currentIndex < values.length) {
+        render();
+    } else {
         nextBtn.disabled = true;
-        return;
-    }
-
-    valueEl.textContent = values[index];
-
-    // перезапуск анимации
-    valueEl.style.animation = "none";
-    valueEl.offsetHeight;
-    valueEl.style.animation = "";
-
-    index++;
-
-    if (index >= values.length) {
-        nextBtn.textContent = "Конец";
-        nextBtn.disabled = true;
+        nextBtn.textContent = "Завершено";
     }
 });
 </script>
