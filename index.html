@@ -2,120 +2,119 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Premium Multiplier</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <style>
-    :root {
-        --accent-color: #ffffff;
-        --glass-bg: rgba(255, 255, 255, 0.07);
-        --glass-border: rgba(255, 255, 255, 0.18);
-    }
-
-    html, body {
+    body, html {
         margin: 0;
         padding: 0;
         width: 100%;
         height: 100%;
         overflow: hidden;
-        font-family: 'SF Pro Display', -apple-system, system-ui, sans-serif;
-        background-color: #000;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
-    /* Фон с умеренным блюром */
+    /* ФОН - исправленный блок */
     .background {
         position: fixed;
-        inset: 0;
-        background: url("bg.jpg") center / cover no-repeat;
-        filter: blur(6px) brightness(0.5); /* Блюр уменьшен */
-        transform: scale(1.05);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* Картинка */
+        background-image: url("bg.jpg");
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        /* Легкий блюр и яркость */
+        filter: blur(4px) brightness(0.7); 
+        z-index: -2;
+        transform: scale(1.1); /* Убирает белые края от блюра */
+    }
+
+    /* Затемнение поверх фона для читаемости */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
         z-index: -1;
     }
 
     .app {
-        height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 40px;
+        gap: 35px;
+        z-index: 10;
+        width: 100%;
     }
 
-    /* Карточка с эффектом стекла */
+    /* Карточка */
     .card {
-        position: relative;
-        min-width: 280px;
-        padding: 50px 30px;
-        border-radius: 40px;
-        background: var(--glass-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--glass-border);
-        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        min-width: 260px;
+        padding: 50px 20px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         text-align: center;
-        overflow: hidden;
     }
 
-    /* Декоративное свечение внутри карточки */
-    .card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
-        pointer-events: none;
-    }
-
-    /* Стилизация значения */
     .value {
-        font-size: 90px;
+        font-size: 85px;
         font-weight: 900;
-        color: #fff;
+        color: #ffffff;
         margin: 0;
-        letter-spacing: -2px;
-        text-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
     }
 
     /* Кнопка */
     .btn-next {
-        padding: 20px 70px;
-        font-size: 18px;
-        font-weight: 700;
-        border-radius: 25px;
+        padding: 18px 70px;
+        font-size: 19px;
+        font-weight: 800;
+        border-radius: 20px;
         border: none;
         cursor: pointer;
         color: #000;
-        background: #fff;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: #ffffff;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        transition: transform 0.1s active;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 1px;
     }
 
     .btn-next:active {
-        transform: scale(0.9) translateY(5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        transform: scale(0.94);
     }
 
-    /* Анимация появления */
-    .pop-in {
-        animation: popIn 0.5s cubic-bezier(0.26, 1.36, 0.45, 0.94);
+    /* Анимация цифр */
+    .pop {
+        animation: popAni 0.3s ease-out;
     }
 
-    @keyframes popIn {
-        0% { opacity: 0; transform: scale(0.5) translateY(30px); filter: blur(10px); }
-        100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+    @keyframes popAni {
+        0% { opacity: 0; transform: scale(0.8); }
+        100% { opacity: 1; transform: scale(1); }
     }
 
-    /* Счетчик */
     .counter {
-        color: rgba(255,255,255,0.4);
+        position: absolute;
+        bottom: 40px;
+        color: rgba(255, 255, 255, 0.6);
         font-size: 14px;
-        font-weight: 500;
         letter-spacing: 1px;
     }
 </style>
@@ -123,27 +122,28 @@
 
 <body>
 
-<div class="background"></div>
+    <div class="background"></div>
+    <div class="overlay"></div>
 
-<div class="app">
-    <div class="card">
-        <div class="value" id="value">...</div>
+    <div class="app">
+        <div class="card">
+            <div class="value" id="value">...</div>
+        </div>
+        
+        <button class="btn-next" id="nextBtn">Далее</button>
+        
+        <div class="counter" id="counter">0 / 0</div>
     </div>
-    
-    <button class="btn-next" id="nextBtn">Далее</button>
-    
-    <div class="counter" id="counter">0 / 0</div>
-</div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
+    tg.ready();
 
     const valueEl = document.getElementById("value");
     const nextBtn = document.getElementById("nextBtn");
     const counterEl = document.getElementById("counter");
 
-    // Парсим данные из URL
     const params = new URLSearchParams(window.location.search);
     const rawData = params.get("data");
 
@@ -151,44 +151,39 @@
     let currentIndex = 0;
 
     if (rawData) {
-        // Разделяем по запятой (как настроено в твоем боте)
+        // Декодируем и разбиваем по запятой (как в твоем боте)
         values = decodeURIComponent(rawData).split(",").filter(v => v.trim() !== "");
     }
 
-    function updateDisplay() {
-        if (values.length === 0) {
+    function render() {
+        if (values.length > 0) {
+            let val = values[currentIndex];
+            valueEl.textContent = val.toLowerCase().includes('x') ? val : val + 'x';
+            counterEl.textContent = `${currentIndex + 1} / ${values.length}`;
+            
+            // Сброс анимации
+            valueEl.classList.remove("pop");
+            void valueEl.offsetWidth; 
+            valueEl.classList.add("pop");
+        } else {
             valueEl.textContent = "Пусто";
-            return;
         }
-
-        let currentVal = values[currentIndex];
-        // Добавляем 'x', если его нет в строке
-        valueEl.textContent = currentVal.toLowerCase().includes('x') ? currentVal : currentVal + 'x';
-        
-        // Обновляем счетчик
-        counterEl.textContent = `${currentIndex + 1} / ${values.length}`;
-
-        // Сброс и запуск анимации
-        valueEl.classList.remove("pop-in");
-        void valueEl.offsetWidth; 
-        valueEl.classList.add("pop-in");
     }
 
-    // Первоначальный запуск
-    updateDisplay();
+    // Первый запуск
+    render();
 
     nextBtn.addEventListener("click", () => {
+        if (values.length === 0) return;
+
         // Вибрация
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 
         currentIndex++;
-        
-        // Если дошли до конца — начинаем заново
         if (currentIndex >= values.length) {
-            currentIndex = 0;
+            currentIndex = 0; // Бесконечный цикл
         }
-
-        updateDisplay();
+        render();
     });
 </script>
 
