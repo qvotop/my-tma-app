@@ -36,7 +36,6 @@
         transform: scale(1.1);
     }
 
-    /* Слой для глубины */
     .overlay {
         position: fixed;
         top: 0;
@@ -52,62 +51,64 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 40px;
+        gap: 30px; /* Немного меньше расстояние между блоками */
         z-index: 10;
         width: 100%;
     }
 
-    /* Стеклянная карточка */
+    /* Компактная стеклянная карточка */
     .card {
-        min-width: 280px;
-        padding: 60px 20px;
-        border-radius: 35px;
+        display: inline-block;
+        min-width: 180px; /* Уменьшено */
+        padding: 25px 40px; /* Уменьшены отступы сверху и снизу */
+        border-radius: 25px; /* Более аккуратные углы */
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         text-align: center;
     }
 
     .value {
-        font-size: 85px;
+        font-size: 75px; /* Чуть меньше шрифт для баланса */
         font-weight: 900;
         color: #ffffff;
         margin: 0;
-        text-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-        letter-spacing: -2px;
+        text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        letter-spacing: -1.5px;
+        line-height: 1; /* Чтобы не было лишнего места внутри */
     }
 
     /* Кнопка */
     .btn-next {
-        padding: 20px 80px;
-        font-size: 18px;
+        padding: 16px 60px; /* Более компактная кнопка */
+        font-size: 17px;
         font-weight: 800;
-        border-radius: 25px;
+        border-radius: 20px;
         border: none;
         cursor: pointer;
         color: #000;
         background: #ffffff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
         transition: all 0.2s ease;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 1.5px;
     }
 
     .btn-next:active {
-        transform: scale(0.92) translateY(3px);
-        background: #e0e0e0;
+        transform: scale(0.92);
+        background: #f0f0f0;
     }
 
-    /* Анимация смены числа */
+    /* Анимация появления */
     .pop {
-        animation: popEffect 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: popEffect 0.3s ease-out;
     }
 
     @keyframes popEffect {
-        0% { opacity: 0; transform: scale(0.7); filter: blur(5px); }
-        100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        0% { opacity: 0; transform: scale(0.85); }
+        100% { opacity: 1; transform: scale(1); }
     }
 </style>
 </head>
@@ -140,17 +141,14 @@
     let currentIndex = 0;
 
     if (rawData) {
-        // Декодируем и разбиваем по запятой (формат бота)
         values = decodeURIComponent(rawData).split(",").filter(v => v.trim() !== "");
     }
 
     function render() {
         if (values.length > 0) {
             let val = values[currentIndex].trim();
-            // Красивый вывод с 'x'
             valueEl.textContent = val.toLowerCase().includes('x') ? val : val + 'x';
             
-            // Запуск анимации
             valueEl.classList.remove("pop");
             void valueEl.offsetWidth; 
             valueEl.classList.add("pop");
@@ -164,14 +162,13 @@
     nextBtn.addEventListener("click", () => {
         if (values.length === 0) return;
 
-        // Легкая вибрация
         if (tg.HapticFeedback) {
             tg.HapticFeedback.impactOccurred('medium');
         }
 
         currentIndex++;
         if (currentIndex >= values.length) {
-            currentIndex = 0; // Начинаем заново
+            currentIndex = 0;
         }
         render();
     });
