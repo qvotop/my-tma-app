@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Premium Multiplier</title>
+<title>Multiplier App</title>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
@@ -20,32 +20,30 @@
         align-items: center;
     }
 
-    /* ФОН - исправленный блок */
+    /* Фоновое изображение */
     .background {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        /* Картинка */
         background-image: url("bg.jpg");
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;
-        /* Легкий блюр и яркость */
-        filter: blur(4px) brightness(0.7); 
+        filter: blur(5px) brightness(0.65); 
         z-index: -2;
-        transform: scale(1.1); /* Убирает белые края от блюра */
+        transform: scale(1.1);
     }
 
-    /* Затемнение поверх фона для читаемости */
+    /* Слой для глубины */
     .overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.3);
+        background: radial-gradient(circle, transparent 0%, rgba(0,0,0,0.4) 100%);
         z-index: -1;
     }
 
@@ -54,21 +52,21 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 35px;
+        gap: 40px;
         z-index: 10;
         width: 100%;
     }
 
-    /* Карточка */
+    /* Стеклянная карточка */
     .card {
-        min-width: 260px;
-        padding: 50px 20px;
-        border-radius: 30px;
-        background: rgba(255, 255, 255, 0.12);
+        min-width: 280px;
+        padding: 60px 20px;
+        border-radius: 35px;
+        background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border: 1px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
         text-align: center;
     }
 
@@ -77,45 +75,39 @@
         font-weight: 900;
         color: #ffffff;
         margin: 0;
-        text-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        text-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+        letter-spacing: -2px;
     }
 
     /* Кнопка */
     .btn-next {
-        padding: 18px 70px;
-        font-size: 19px;
+        padding: 20px 80px;
+        font-size: 18px;
         font-weight: 800;
-        border-radius: 20px;
+        border-radius: 25px;
         border: none;
         cursor: pointer;
         color: #000;
         background: #ffffff;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        transition: transform 0.1s active;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.2s ease;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
     }
 
     .btn-next:active {
-        transform: scale(0.94);
+        transform: scale(0.92) translateY(3px);
+        background: #e0e0e0;
     }
 
-    /* Анимация цифр */
+    /* Анимация смены числа */
     .pop {
-        animation: popAni 0.3s ease-out;
+        animation: popEffect 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    @keyframes popAni {
-        0% { opacity: 0; transform: scale(0.8); }
-        100% { opacity: 1; transform: scale(1); }
-    }
-
-    .counter {
-        position: absolute;
-        bottom: 40px;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 14px;
-        letter-spacing: 1px;
+    @keyframes popEffect {
+        0% { opacity: 0; transform: scale(0.7); filter: blur(5px); }
+        100% { opacity: 1; transform: scale(1); filter: blur(0); }
     }
 </style>
 </head>
@@ -127,12 +119,10 @@
 
     <div class="app">
         <div class="card">
-            <div class="value" id="value">...</div>
+            <div id="value" class="value">...</div>
         </div>
         
-        <button class="btn-next" id="nextBtn">Далее</button>
-        
-        <div class="counter" id="counter">0 / 0</div>
+        <button id="nextBtn" class="btn-next">Далее</button>
     </div>
 
 <script>
@@ -142,7 +132,6 @@
 
     const valueEl = document.getElementById("value");
     const nextBtn = document.getElementById("nextBtn");
-    const counterEl = document.getElementById("counter");
 
     const params = new URLSearchParams(window.location.search);
     const rawData = params.get("data");
@@ -151,17 +140,17 @@
     let currentIndex = 0;
 
     if (rawData) {
-        // Декодируем и разбиваем по запятой (как в твоем боте)
+        // Декодируем и разбиваем по запятой (формат бота)
         values = decodeURIComponent(rawData).split(",").filter(v => v.trim() !== "");
     }
 
     function render() {
         if (values.length > 0) {
-            let val = values[currentIndex];
+            let val = values[currentIndex].trim();
+            // Красивый вывод с 'x'
             valueEl.textContent = val.toLowerCase().includes('x') ? val : val + 'x';
-            counterEl.textContent = `${currentIndex + 1} / ${values.length}`;
             
-            // Сброс анимации
+            // Запуск анимации
             valueEl.classList.remove("pop");
             void valueEl.offsetWidth; 
             valueEl.classList.add("pop");
@@ -170,18 +159,19 @@
         }
     }
 
-    // Первый запуск
     render();
 
     nextBtn.addEventListener("click", () => {
         if (values.length === 0) return;
 
-        // Вибрация
-        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        // Легкая вибрация
+        if (tg.HapticFeedback) {
+            tg.HapticFeedback.impactOccurred('medium');
+        }
 
         currentIndex++;
         if (currentIndex >= values.length) {
-            currentIndex = 0; // Бесконечный цикл
+            currentIndex = 0; // Начинаем заново
         }
         render();
     });
