@@ -10,20 +10,22 @@
             height: 100vh; width: 100vw;
             overflow: hidden;
             font-family: 'Arial', sans-serif;
-            background-color: #000; /* Цвет на случай, если картинка не прогрузится */
+            background-color: #000;
         }
 
-        /* Слой с фоновым изображением */
+        /* Фоновое изображение */
         .background {
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background-image: url('bg.jpg'); /* ВСТАВЬ ССЫЛКУ ТУТ */
+            /* Указываем имя твоего файла */
+            background-image: url('bg.jpg'); 
             background-size: cover;
             background-position: center;
-            filter: blur(8px) brightness(0.6); /* Размытие и затемнение фона */
+            /* Размытие и затемнение */
+            filter: blur(8px) brightness(0.5); 
             z-index: -1;
-            transform: scale(1.1); /* Чтобы края не белели при блюре */
+            transform: scale(1.1);
         }
 
         .container {
@@ -36,46 +38,35 @@
         }
 
         #coeff-display {
-            font-size: 5.5rem;
+            font-size: 6rem;
             font-weight: 900;
-            margin-bottom: 30px;
-            text-shadow: 0 5px 20px rgba(0,0,0,0.6);
-            transition: transform 0.2s ease;
+            margin-bottom: 50px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: all 0.15s ease-in-out;
         }
 
         .next-btn {
-            padding: 18px 65px;
-            font-size: 1.5rem;
+            padding: 20px 70px;
+            font-size: 1.4rem;
             font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
             cursor: pointer;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
             transition: all 0.2s ease;
+            outline: none;
         }
 
         .next-btn:active {
-            transform: scale(0.9);
-            background: rgba(255, 255, 255, 0.9);
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 1);
             color: #000;
-        }
-
-        #counter {
-            position: absolute;
-            top: 40px;
-            font-size: 1rem;
-            text-transform: uppercase;
-            opacity: 0.8;
-            letter-spacing: 1px;
-            background: rgba(0,0,0,0.3);
-            padding: 5px 15px;
-            border-radius: 20px;
         }
     </style>
 </head>
@@ -84,15 +75,15 @@
     <div class="background"></div>
 
     <div class="container">
-        <div id="counter">ЗАГРУЗКА...</div>
         <div id="coeff-display">---</div>
         <button class="next-btn" onclick="showNext()">ДАЛЕЕ</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
-        tg.expand();
+        tg.expand(); // Разворачиваем на весь экран
 
+        // Получаем данные из URL (которые пришлет бот)
         const urlParams = new URLSearchParams(window.location.search);
         const rawData = urlParams.get('data') || "";
         const coefficients = rawData.split(',').filter(x => x.trim() !== "");
@@ -101,23 +92,25 @@
 
         function showNext() {
             const display = document.getElementById('coeff-display');
-            const counter = document.getElementById('counter');
             
             if (currentIndex < coefficients.length) {
+                // Анимация затухания перед сменой числа
+                display.style.opacity = "0";
                 display.style.transform = "scale(0.8)";
+                
                 setTimeout(() => {
                     display.innerText = coefficients[currentIndex] + "x";
+                    display.style.opacity = "1";
                     display.style.transform = "scale(1)";
                     currentIndex++;
-                    counter.innerText = `Осталось: ${coefficients.length - currentIndex}`;
-                }, 100);
+                }, 150);
             } else {
-                display.innerText = "ФИНИШ";
+                display.innerText = "КОНЕЦ";
                 display.style.fontSize = "3rem";
-                counter.innerText = "СПИСОК ПУСТ";
             }
         }
         
+        // Запуск первого числа
         showNext();
     </script>
 </body>
